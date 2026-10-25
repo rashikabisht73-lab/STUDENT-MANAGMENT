@@ -21,6 +21,7 @@ function saveStudents() {
 // ===== STEP 4: Show a message under the form =====
 function showMessage(text, type) {
     message.textContent = text;
+    
     message.className = "message " + type;
 
     // Hide the message after 3 seconds
@@ -145,3 +146,36 @@ searchInput.addEventListener("input", displayStudents);
 
 // ===== STEP 9: Show the table when the page first loads =====
 displayStudents();
+
+function exportStudents() {
+    if (students.length === 0) {
+        alert("No student data to export!");
+        return;
+    }
+
+    const headers = ["Student ID", "Name", "Course", "Email"];
+
+    const rows = students.map((student, index) => [
+        student.id || student.studentId || index + 1,
+        student.name || "",
+        student.course || "",
+        student.email || ""
+    ]);
+
+    const csv = [headers, ...rows]
+        .map(row => row.map(value =>
+            '"' + String(value).replace(/"/g, '""') + '"'
+        ).join(","))
+        .join("\r\n");
+
+    const blob = new Blob(["\uFEFF" + csv], {
+        type: "text/csv;charset=utf-8;"
+    });
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "students.csv";
+    link.click();
+    URL.revokeObjectURL(url);
+}
